@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="OpenBelief-Nav: evidence-preserving open-vocabulary scene graphs for reliable language-guided robot navigation. One frozen graph, many task-time readouts, execution-grounded correction.">
+  <meta property="og:title" content="OpenBelief-Nav — Evidence-Preserving Open-Vocabulary Scene Graphs">
+  <meta property="og:description"
+    content="Object nodes that store evidence, not decisions: multi-view phrases, reliability, and provenance are preserved so segmentation, retrieval, rejection, and correction become task-time readouts.">
+  <meta property="og:image" content="figures/pipeline.png">
+  <title>OpenBelief-Nav — Evidence-Preserving Open-Vocabulary Scene Graphs</title>
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="static/css/base.css">
+  <link rel="stylesheet" href="static/css/scene-graph.css">
+  <link rel="stylesheet" href="static/css/widgets.css">
+</head>
+
+<body>
+
+  <!-- ============ Nav ============ -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="nav-brand" href="#top"><span class="glyph">🧭</span>OpenBelief-Nav</a>
+      <div class="nav-links">
+        <a href="#scenegraph">Scene Graph</a>
+        <a href="#overview">Why</a>
+        <a href="#method">Method</a>
+        <a href="#belief-lab">Belief Lab</a>
+        <a href="#correction">Correction</a>
+        <a href="#results">Results</a>
+        <a href="#realworld">Real World</a>
+        <a href="#bibtex">BibTeX</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============ Hero ============ -->
+  <header class="hero" id="top">
+    <div class="wrap-wide">
+      <div class="hero-eyebrow"><span class="dot"></span>Preprint · Under Review · 2026</div>
+      <h1>Scene graphs that store <span class="grad">evidence</span>, not decisions.</h1>
+      <p class="hero-sub">
+        <b>OpenBelief-Nav</b> is a training-free open-vocabulary scene graph for language-guided robot navigation.
+        Each object node preserves its multi-view phrases, reliability weights, and exact provenance instead of a
+        single committed label — so segmentation, retrieval, unsupported-query rejection, and execution-time
+        correction all become <b>task-time readouts over one frozen graph</b>.
+      </p>
+
+      <!-- <div class="authors">
+        <span class="au">Quan-Dung Pham</span><sup>*</sup>, <span class="au">Anh Dao</span><sup>*</sup>,
+        <span class="au">The-Anh Nguyen</span><sup>*</sup>, <span class="au">Minh Nguyen-Dinh</span><sup>*</sup>,
+        <span class="au">Phuong Nam Dang</span><sup>*</sup>, <span class="au">Tuyen P. Le</span>
+      </div>
+      <div class="affil">VinMotion, Inc., Vietnam &nbsp;·&nbsp; <sup>*</sup>Equal contribution</div> -->
+
+      <div class="hero-actions">
+        <a class="btn btn-dark" href="#" aria-disabled="true">📄 Paper <span class="soon">soon</span></a>
+        <a class="btn btn-ghost" href="#" aria-disabled="true">arXiv <span class="soon">soon</span></a>
+        <a class="btn btn-ghost" href="#" aria-disabled="true">Code <span class="soon">soon</span></a>
+        <a class="btn btn-ghost" href="#bibtex">BibTeX</a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-chip reveal">
+          <div class="v">0.2742 <em>+71%</em></div>
+          <div class="k">ScanNet200 mIoU vs. DualMap 0.1604</div>
+        </div>
+        <div class="stat-chip reveal">
+          <div class="v">76.9% <em>+6.4</em></div>
+          <div class="k">SR@1m on HM3D + YCB vs. DualMap 70.5%</div>
+        </div>
+        <div class="stat-chip reveal">
+          <div class="v">1 graph</div>
+          <div class="k">built once — every task reads, none rewrites</div>
+        </div>
+        <div class="stat-chip reveal">
+          <div class="v">0 training</div>
+          <div class="k">frozen VLM + segmenter + CLIP only</div>
+        </div>
+      </div>
+
+      <!-- ============ Interactive 3D scene graph ============ -->
+      <div class="sg-module" id="scenegraph">
+        <div class="sg-frame">
+          <div class="sg-stage" id="sg-stage">
+            <canvas id="sg-canvas"></canvas>
+            <div class="sg-legend" id="sg-legend">
+              <div class="row"><span class="sw" style="background:#F0F4FC"></span>building</div>
+              <div class="row"><span class="sw" style="background:#5B8DEF"></span>living room</div>
+              <div class="row"><span class="sw" style="background:#2FB380"></span>kitchen</div>
+              <div class="row"><span class="sw" style="background:#9A7BFF"></span>bedroom</div>
+              <div class="row"><span class="sw" style="background:#E8A33D"></span>office</div>
+            </div>
+            <div class="sg-hint" id="sg-hint">drag to orbit · scroll to zoom · click an object for its evidence</div>
+            <div class="sg-tooltip" id="sg-tooltip"></div>
+            <div class="sg-fallback" id="sg-fallback">
+              <div><span id="sg-fallback-reason">The interactive scene graph couldn't start.</span><br>
+                See the pipeline figure below for the full picture.</div>
+            </div>
+          </div>
+          <aside class="sg-panel">
+            <div class="sg-panel-head">
+              <h3 id="sg-panel-title">Evidence-preserving node</h3>
+              <button class="clear-btn" id="sg-clear">reset</button>
+            </div>
+            <div class="sg-panel-body" id="sg-panel-body"><!-- filled by JS --></div>
+          </aside>
+        </div>
+
+        <div class="sg-controls">
+          <div class="spread-ctl">
+            <label for="spread">hierarchy spread</label>
+            <input type="range" id="spread" min="0" max="100" value="62">
+          </div>
+          <div class="q-chips" id="q-chips">
+            <span class="q-label">try a query →</span>
+            <button class="q-chip" data-q="sofa">“take me to the sofa”</button>
+            <button class="q-chip" data-q="fire extinguisher">“find the fire extinguisher”</button>
+            <button class="q-chip" data-q="somewhere to sit">“somewhere to sit”</button>
+            <button class="q-chip absent" data-q="washing machine">“washing machine” (absent)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ Why ============ -->
+  <section id="overview">
+    <div class="wrap">
+      <div class="sec-kicker reveal">The problem</div>
+      <h2 class="sec-title reveal">Maps that make up their mind too early can't take it back</h2>
+      <p class="sec-lede reveal">
+        A sofa seen from four viewpoints may be proposed as <i>sofa</i>, <i>chair</i>, <i>bench</i>, or
+        <i>armchair</i> — occlusion, scale, and foundation-model noise guarantee disagreement.
+        ConceptGraphs, HOV-SG, FSR-VLN, and DualMap all resolve that disagreement <b>at construction time</b>,
+        exposing each object as one fused feature, label, or consensus state. Three things go wrong.
+      </p>
+      <div class="card-grid cols-3">
+        <div class="card reveal">
+          <!-- <div class="icon" style="background:var(--reject-tint)">🗑️</div> -->
+          <h3>Commitment destroys evidence</h3>
+          <p>When a majority vote picks one label, the minority phrases are gone. Yet among nodes misclassified
+            by majority vote, the <b>correct category is often still present</b> in the stored phrase set —
+            information the system already paid to acquire, discarded by how it is stored.</p>
+          <div class="tagline">store observations, not verdicts</div>
+        </div>
+        <div class="card reveal">
+          <!-- <div class="icon" style="background:var(--amber-tint)">⚖️</div> -->
+          <h3>No single readout fits every task</h3>
+          <p>The readout that maximizes benchmark segmentation is <b>not</b> the one that maximizes navigation
+            success — our experiments show posterior projection wins segmentation while a consensus readout wins
+            retrieval. A map that commits to either loses the other.</p>
+          <div class="tagline">choose the readout per task</div>
+        </div>
+        <div class="card reveal">
+          <!-- <div class="icon" style="background:var(--vis-tint)">🎯</div> -->
+          <h3>Similarity always returns something</h3>
+          <p>Cosine similarity has an argmax <b>even when the queried object does not exist</b> or the best match
+            is stale. A post-hoc verifier can't recover a target that was never in its candidate set — rejection
+            must be calibrated at retrieval time.</p>
+          <div class="tagline">support testing, not just ranking</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Method ============ -->
+  <section id="method">
+    <div class="wrap">
+      <div class="sec-kicker reveal">Method</div>
+      <h2 class="sec-title reveal">Four stages, each pushing commitment later</h2>
+      <p class="sec-lede reveal">
+        An object node stores the evidence-preserving state
+        <span style="font-family:var(--mono);font-size:15px">𝓑ᵢ = (Pᵢ, fᵢᵛ, 𝓞ᵢ, 𝐕ᵢ, 𝐩ᵢ, fᵢᵗ, ρᵢ)</span> —
+        point cloud, aggregate visual feature, the raw language observations, concept-level evidence with its
+        smoothed belief, a consensus text feature, and a trust status. The visual and language channels are
+        <b>never destructively fused during mapping</b>; every cross-modal decision is deferred to a readout.
+      </p>
+
+      <div class="item-list">
+        <div class="item-row reveal">
+          <div class="item-head">
+            <span class="num-badge">STAGE 1</span>
+            <h3>Evidence acquisition</h3>
+          </div>
+          <div class="item-body">
+            <p>A frozen VLM proposes phrases; a promptable segmenter grounds each phrase as masks. Every mask is kept
+              as an observation with its phrase, confidence, 3D support, and exact frame + mask identity.</p>
+            <div class="eq">o<sub>e</sub> = (t<sub>e</sub>, j<sub>e</sub>, ℓ<sub>e</sub>, c<sub>e</sub>, n<sub>e</sub>)
+            </div>
+          </div>
+        </div>
+        <div class="item-row reveal">
+          <div class="item-head">
+            <span class="num-badge">STAGE 2</span>
+            <h3>Geometric–visual association</h3>
+          </div>
+          <div class="item-body">
+            <p>Observations merge on <b>3D overlap</b>, with visual similarity only as a rejection cue — never on
+              predicted names. Precision is favored: a false merge is irreversible, a missed one is recoverable at
+              query time.</p>
+            <div class="eq">e ∼ e′ ⇔ Ω<sub>r</sub> ≥ τ<sub>g</sub> ∧ ⟨f<sub>e</sub>ᵛ, f<sub>e′</sub>ᵛ⟩ ≥ τ<sub>v</sub>
+            </div>
+          </div>
+        </div>
+        <div class="item-row reveal">
+          <div class="item-head">
+            <span class="num-badge">STAGE 3</span>
+            <h3>Belief construction</h3>
+          </div>
+          <div class="item-body">
+            <p>Observations are weighted by what we actually know — segmentation confidence and 3D support — grouped
+              into synonym-aware concepts, and Dirichlet-smoothed so sparse evidence can't fake certainty.</p>
+            <div class="eq">w<sub>e</sub> = c<sub>e</sub>√n̄<sub>e</sub> &nbsp;·&nbsp;
+              p<sub>ik</sub> = <span class="hl">(V<sub>ik</sub>+α)</span> / (ΣV<sub>ij</sub>+αK<sub>i</sub>)</div>
+          </div>
+        </div>
+        <div class="item-row reveal">
+          <div class="item-head">
+            <span class="num-badge">STAGE 4</span>
+            <h3>Task-time readouts</h3>
+          </div>
+          <div class="item-body">
+            <p>Vocabulary projection, free-form retrieval, and support testing are separate operators over the same
+              frozen evidence — and at deployment, arrival observations physically test the selected hypothesis.</p>
+            <div class="eq">readout(𝓑ᵢ, task) — graph never rewritten</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="figure-block reveal">
+        <img src="figures/pipeline.png" alt="OpenBelief-Nav pipeline overview" class="zoomable">
+        <div class="figure-cap"><b>The full pipeline.</b> Posed RGB-D observations produce per-observation visual,
+          linguistic, geometric, reliability, and provenance evidence. Geometric–visual association forms object
+          nodes without any hard name-equality merge. The preserved evidence supports vocabulary projection,
+          free-form retrieval, unsupported-query rejection, and query-preserving correction after physical
+          verification.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Belief lab ============ -->
+  <section id="belief-lab">
+    <div class="wrap">
+      <div class="sec-kicker reveal">Interactive</div>
+      <h2 class="sec-title reveal">Watch a belief being built — and vote splitting break it</h2>
+      <p class="sec-lede reveal">
+        Five views of the same sofa arrive with different phrases. Play the stream, then toggle
+        <b>synonym consolidation</b> off: the lexical variants <i>sofa / couch / loveseat</i> split their votes and a
+        single high-support <i>chair</i> observation wins. Drag <b>α</b> to see Dirichlet smoothing keep sparse
+        evidence from collapsing into false certainty.
+      </p>
+
+      <div class="lab-frame reveal">
+        <div class="lab-left">
+          <div class="lab-title">Observation stream 𝓞ᵢ</div>
+          <div class="lab-sub">weight w<sub>e</sub> = c<sub>e</sub> · √n<sub>e</sub> — confidence × spatial support
+          </div>
+          <div class="obs-list" id="obs-list"><!-- filled by JS --></div>
+          <div class="lab-ctl-row">
+            <button class="lab-btn" id="lab-play">▶ Play stream</button>
+            <button class="lab-btn secondary" id="lab-reset">Reset</button>
+          </div>
+        </div>
+        <div class="lab-right">
+          <div class="lab-title">Concept belief 𝐩ᵢ</div>
+          <div class="lab-sub">accumulated at the concept level, Dirichlet-smoothed</div>
+          <div class="concept-rows" id="concept-rows"><!-- filled by JS --></div>
+          <div class="lab-ctl-row">
+            <div class="toggle-row">
+              <label class="switch">
+                <input type="checkbox" id="lab-consolidate" checked>
+                <span class="track"></span>
+              </label>
+              synonym consolidation
+            </div>
+            <div class="alpha-ctl">
+              α <input type="range" id="lab-alpha" min="1" max="60" value="8"> <span id="lab-alpha-v">0.8</span>
+            </div>
+          </div>
+          <div class="lab-verdict" id="lab-verdict">Press play to stream observations into the node.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Readouts ============ -->
+  <section id="readouts">
+    <div class="wrap">
+      <div class="sec-kicker reveal">One graph, many answers</div>
+      <h2 class="sec-title reveal">“What is this object?” depends on who's asking</h2>
+      <p class="sec-lede reveal">
+        Because a node stores evidence rather than a decision, the same frozen graph answers differently —
+        and correctly — for each task.
+      </p>
+
+      <div class="item-list">
+        <div class="item-row r-vis reveal">
+          <div class="item-head">
+            <h3>Vocabulary projection</h3>
+          </div>
+          <div class="item-body">
+            <p>The benchmark vocabulary arrives only at evaluation time. The stored belief is refined by the visual
+              feature <b>within its existing support</b>, then projected onto the target classes — secondary
+              hypotheses an early top-1 would have discarded remain recoverable.</p>
+            <div class="eq">ŷᵢ(c) = (1−λ)Σ p̃<sub>ik</sub>W<sub>ikc</sub> + λ·softmax⟨fᵢᵛ, t<sub>c</sub>⟩</div>
+          </div>
+        </div>
+        <div class="item-row r-lang reveal">
+          <div class="item-head">
+            <h3>Free-form retrieval</h3>
+          </div>
+          <div class="item-body">
+            <p>Query similarity fuses the visual and text heads — but the fusion weight is <b>per-node</b>, conditioned
+              on the trust status the belief construction produced:</p>
+            <table class="lam-table">
+              <tr>
+                <td>no language evidence (K=0)</td>
+                <td>trust vision only</td>
+                <td>λ = 1.0</td>
+              </tr>
+              <tr>
+                <td>degraded belief</td>
+                <td>lean visual</td>
+                <td>λ = 0.7</td>
+              </tr>
+              <tr>
+                <td>trusted belief</td>
+                <td>trust the text head</td>
+                <td>λ = 0.2</td>
+              </tr>
+            </table>
+            <div class="eq">Sᵢ(q) = λᵢ⟨fᵢᵛ, f_q⟩ + (1−λᵢ)⟨fᵢᵗ, f_q⟩</div>
+          </div>
+        </div>
+        <div class="item-row r-geo reveal">
+          <div class="item-head">
+            <h3>Support test → abstention</h3>
+          </div>
+          <div class="item-body">
+            <p>Retrieval only returns a target when its score clears a support threshold; otherwise it
+              <b>abstains</b>. An absent or unsupported query is refused at retrieval time — before the robot
+              drives anywhere — instead of being “verified” after the fact.
+            </p>
+            <div class="eq">retrieve(q) = argmax Sᵢ(q) if max ≥ τ<sub>s</sub>, else <span class="hl">ABSTAIN</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="split-callout reveal">
+        <div class="split-half">
+          <div class="task seg">Semantic segmentation · ScanNet200</div>
+          <div class="big-num">0.2742</div>
+          <div class="win-readout">best readout: <b>full posterior</b> projection</div>
+          <div class="delta">consensus-only reaches 0.2107 · visual-only 0.1286 · <em>+71% over DualMap</em></div>
+        </div>
+        <div class="split-half">
+          <div class="task nav">Language-guided navigation · HM3D + YCB</div>
+          <div class="big-num">76.9%</div>
+          <div class="win-readout">best readout: <b>consensus</b> over the same graph</div>
+          <div class="delta">full posterior reaches 74.4% · <em>+6.4 pts over DualMap</em></div>
+        </div>
+        <div class="split-foot">
+          <b>No single committed readout is optimal for both tasks — the evidence-preserving graph is,</b>
+          because the readout is chosen per task over the same preserved evidence.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Correction ============ -->
+  <section id="correction">
+    <div class="wrap">
+      <div class="sec-kicker reveal">Deployment</div>
+      <h2 class="sec-title reveal">Navigation is a physical test of the hypothesis</h2>
+      <p class="sec-lede reveal">
+        A retrieval result is a hypothesis, not a fact. On arrival, the robot's RGB-D observation runs an ordered
+        verifier — <b>re-observe</b> if the candidate isn't sufficiently visible (absence of view is not evidence
+        of absence), <b>reject</b> on semantic mismatch or on a semantic match that fails to coincide geometrically
+        with the stored node, <b>confirm</b> otherwise. Rejection changes exactly one thing: a per-query exclusion
+        set. The graph is never modified and the query is never rewritten.
+      </p>
+
+      <div class="ep-frame reveal">
+        <div class="ep-map">
+          <svg viewBox="0 0 460 330" role="img" aria-label="Top-down map of the correction episode">
+            <!-- rooms -->
+            <rect class="m-room" x="14" y="14" width="212" height="146" rx="8" />
+            <rect class="m-room" x="234" y="14" width="212" height="146" rx="8" />
+            <rect class="m-room" x="14" y="168" width="212" height="148" rx="8" />
+            <rect class="m-room" x="234" y="168" width="212" height="148" rx="8" />
+            <text class="m-room-label" x="26" y="34">LIVING ROOM</text>
+            <text class="m-room-label" x="246" y="34">KITCHEN</text>
+            <text class="m-room-label" x="26" y="188">BEDROOM</text>
+            <text class="m-room-label" x="246" y="188">OFFICE</text>
+            <!-- furniture (static) -->
+            <rect class="m-obj" x="34" y="66" width="64" height="26" rx="4" />
+            <rect class="m-obj" x="44" y="110" width="40" height="18" rx="4" />
+            <rect class="m-obj" x="260" y="52" width="80" height="22" rx="4" />
+            <rect class="m-obj" x="404" y="46" width="26" height="40" rx="4" />
+            <rect class="m-obj" x="40" y="228" width="66" height="48" rx="4" />
+            <rect class="m-obj" x="330" y="252" width="76" height="30" rx="4" />
+            <rect class="m-obj" x="272" y="120" width="46" height="20" rx="4" />
+            <!-- candidate 1: mug on office desk -->
+            <rect class="m-cand" id="cand1" x="352" y="238" width="14" height="14" rx="3" />
+            <line class="m-x" id="x1a" x1="349" y1="235" x2="369" y2="255" />
+            <line class="m-x" id="x1b" x1="369" y1="235" x2="349" y2="255" />
+            <text class="m-room-label" id="cand1-label" x="330" y="300" style="fill:#8B7CF7">n17 · “mug” 0.41</text>
+            <!-- candidate 2: mug on kitchen counter -->
+            <rect class="m-cand" id="cand2" x="292" y="54" width="14" height="14" rx="3" />
+            <text class="m-room-label" id="cand2-label" x="260" y="92" style="fill:#5F7196">n09 · “mug” 0.38</text>
+            <!-- paths -->
+            <path class="m-path" id="path1" d="M 226 164 L 236 176 L 300 200 L 344 232" />
+            <path class="m-path" id="path2" d="M 344 232 L 300 200 L 240 170 L 240 120 L 286 80" />
+            <!-- robot -->
+            <g class="m-robot" id="ep-robot">
+              <circle r="10" fill="rgba(109,95,240,.25)" />
+              <circle r="4.6" fill="#8B7CF7" />
+            </g>
+          </svg>
+        </div>
+        <div class="ep-side">
+          <div class="ep-query">
+            <span class="qmark">q:</span> “bring me the coffee mug”
+            <span class="lock">🔒 never rewritten</span>
+          </div>
+          <div class="ep-state">
+            <div class="ep-step-label" id="ep-label">STEP 0 / 5</div>
+            <div class="ep-step-title" id="ep-title">Two hypotheses in the map</div>
+            <div class="ep-step-body" id="ep-body"></div>
+          </div>
+          <div class="ep-ctl">
+            <button class="lab-btn secondary" id="ep-prev">← Back</button>
+            <div class="ep-pips" id="ep-pips"></div>
+            <button class="lab-btn" id="ep-next">Next →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Results ============ -->
+  <section id="results">
+    <div class="wrap">
+      <div class="sec-kicker reveal">Results</div>
+      <h2 class="sec-title reveal">Same graph, strongest result on both benchmarks</h2>
+      <p class="sec-lede reveal">
+        Graph construction is performed <b>once per environment</b>; every number below is a readout over that
+        frozen graph, with no re-perception between tasks.
+      </p>
+
+      <div class="tbl-card reveal">
+        <div class="tbl-head">
+          <h3>Open-vocabulary 3D semantic segmentation</h3>
+          <p>ScanNet200 (5 scenes) and Replica (8 scenes). Higher is better; bold = best per dataset.</p>
+        </div>
+        <div class="tbl-scroll">
+          <table class="res">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th class="num">mIoU ↑</th>
+                <th class="num">F-mIoU ↑</th>
+                <th class="num">mAcc ↑</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="dataset-band">
+                <td colspan="4">ScanNet200</td>
+              </tr>
+              <tr>
+                <td>ConceptGraphs</td>
+                <td class="num"><span class="cellbar"><span class="bar"><i data-w="30"></i></span>0.0882</span></td>
+                <td class="num">0.3077</td>
+                <td class="num">0.3538</td>
+              </tr>
+              <tr>
+                <td>HOV-SG</td>
+                <td class="num"><span class="cellbar"><span class="bar"><i data-w="46"></i></span>0.1333</span></td>
+                <td class="num">0.3381</td>
+                <td class="num">0.3714</td>
+              </tr>
+              <tr>
+                <td>DualMap</td>
+                <td class="num"><span class="cellbar"><span class="bar"><i data-w="56"></i></span>0.1604</span></td>
+                <td class="num">0.3288</td>
+                <td class="num">0.3794</td>
+              </tr>
+              <tr class="ours">
+                <td>OpenBelief-Nav <span class="method-tag">consensus</span></td>
+                <td class="num"><span class="cellbar"><span class="bar"><i data-w="74"></i></span>0.2107</span></td>
+                <td class="num">0.4887</td>
+                <td class="num">0.4580</td>
+              </tr>
+              <tr class="ours">
+                <td>OpenBelief-Nav <span class="method-tag">posterior</span></td>
+                <td class="num"><span class="cellbar"><span class="bar"><i data-w="96"></i></span><span
+                      class="best">0.2742</span></span></td>
+                <td class="num best">0.5276</td>
+                <td class="num best">0.4685</td>
+              </tr>
+              <tr class="dataset-band">
+                <td colspan="4">Replica</td>
+              </tr>
+              <tr>
+                <td>ConceptGraphs</td>
+                <td class="num"><span class="cellbar"><span class="bar"><i data-w="50"></i></span>0.1501</span></td>
+                <td class="num">0.3858</td>
+                <td class="num">0.3559</td>
+              </tr>
+              <tr>
+                <td>HOV-SG</td>
+                <td class="num"><span class="cellbar"><span class="bar"><i data-w="68"></i></span>0.2050</span></td>
+                <td class="num">0.4846</td>
+                <td class="num">0.3835</td>
+              </tr>
+              <tr>
+                <td>DualMap</td>
+                <td class="num"><span class="cellbar"><span class="bar"><i data-w="84"></i></span>0.2538</span></td>
+                <td class="num best">0.5207</td>
+                <td class="num">0.4024</td>
+              </tr>
+              <tr class="ours">
+                <td>OpenBelief-Nav <span class="method-tag">consensus</span></td>
+                <td class="num"><span class="cellbar"><span class="bar"><i data-w="94"></i></span>0.2831</span></td>
+                <td class="num">0.4647</td>
+                <td class="num">0.4774</td>
+              </tr>
+              <tr class="ours">
+                <td>OpenBelief-Nav <span class="method-tag">posterior</span></td>
+                <td class="num"><span class="cellbar"><span class="bar"><i data-w="97"></i></span><span
+                      class="best">0.2912</span></span></td>
+                <td class="num">0.5204</td>
+                <td class="num best">0.4822</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tbl-card reveal">
+        <div class="tbl-head">
+          <h3>Language-guided navigation — Habitat-Sim, HM3D + inserted YCB objects</h3>
+          <p>SR@1m (%), 78 trials per method following the DualMap protocol. Internal readouts share one graph.</p>
+        </div>
+        <div class="tbl-scroll">
+          <table class="res">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th class="num">00829</th>
+                <th class="num">00848</th>
+                <th class="num">00880</th>
+                <th class="num">Avg. SR@1m ↑</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ConceptGraphs</td>
+                <td class="num">69.2</td>
+                <td class="num">53.8</td>
+                <td class="num">61.5</td>
+                <td class="num"><span class="cellbar"><span class="bar"><i data-w="72"></i></span>61.5</span></td>
+              </tr>
+              <tr>
+                <td>HOV-SG</td>
+                <td class="num">53.8</td>
+                <td class="num">46.2</td>
+                <td class="num">57.7</td>
+                <td class="num"><span class="cellbar"><span class="bar"><i data-w="61"></i></span>52.6</span></td>
+              </tr>
+              <tr>
+                <td>DualMap</td>
+                <td class="num">73.1</td>
+                <td class="num">69.2</td>
+                <td class="num">69.2</td>
+                <td class="num"><span class="cellbar"><span class="bar"><i data-w="83"></i></span>70.5</span></td>
+              </tr>
+              <tr class="ours">
+                <td>OpenBelief-Nav <span class="method-tag">consensus</span></td>
+                <td class="num">80.8</td>
+                <td class="num best">76.9</td>
+                <td class="num best">73.1</td>
+                <td class="num"><span class="cellbar"><span class="bar"><i data-w="97"></i></span><span
+                      class="best">76.9</span></span></td>
+              </tr>
+              <tr class="ours">
+                <td>OpenBelief-Nav <span class="method-tag">early-commit</span></td>
+                <td class="num best">84.6</td>
+                <td class="num">73.1</td>
+                <td class="num best">73.1</td>
+                <td class="num"><span class="cellbar"><span class="bar"><i data-w="97"></i></span><span
+                      class="best">76.9</span></span></td>
+              </tr>
+              <tr class="ours">
+                <td>OpenBelief-Nav <span class="method-tag">posterior</span></td>
+                <td class="num">76.9</td>
+                <td class="num">73.1</td>
+                <td class="num best">73.1</td>
+                <td class="num"><span class="cellbar"><span class="bar"><i data-w="94"></i></span>74.4</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card-grid cols-2">
+        <div class="tbl-card reveal" style="margin-top:0">
+          <div class="tbl-head">
+            <h3>Component ablation</h3>
+            <p>Each row disables one mechanism of the belief construction.</p>
+          </div>
+          <div class="tbl-scroll">
+            <table class="res" style="min-width:420px">
+              <thead>
+                <tr>
+                  <th>Variant</th>
+                  <th class="num">ScanNet200 mIoU</th>
+                  <th class="num">Nav SR@1m</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>w<sub>e</sub> = 1 (no reliability)</td>
+                  <td class="num">0.2010</td>
+                  <td class="num">70.5</td>
+                </tr>
+                <tr>
+                  <td>w<sub>e</sub> = c<sub>e</sub>n<sub>e</sub> (linear support)</td>
+                  <td class="num best">0.2117</td>
+                  <td class="num">74.4</td>
+                </tr>
+                <tr>
+                  <td>no synonym consolidation</td>
+                  <td class="num">0.2067</td>
+                  <td class="num">75.6</td>
+                </tr>
+                <tr>
+                  <td>no low-evidence regularization</td>
+                  <td class="num">0.2095</td>
+                  <td class="num">70.5</td>
+                </tr>
+                <tr class="ours">
+                  <td>full system</td>
+                  <td class="num">0.2107</td>
+                  <td class="num best">76.9</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="tbl-card reveal" style="margin-top:0">
+          <div class="tbl-head">
+            <h3>Positioning</h3>
+            <p>“Evidence @ query” = per-observation evidence exposed to task-time readouts.</p>
+          </div>
+          <div class="tbl-scroll">
+            <table class="res" style="min-width:420px">
+              <thead>
+                <tr>
+                  <th>System</th>
+                  <th class="ctr">Evidence @ query</th>
+                  <th class="ctr">Rejection</th>
+                  <th class="ctr">Exec. correction</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>ConceptGraphs</td>
+                  <td class="ctr pos-dash">—</td>
+                  <td class="ctr pos-dash">—</td>
+                  <td class="ctr pos-dash">—</td>
+                </tr>
+                <tr>
+                  <td>HOV-SG</td>
+                  <td class="ctr pos-dash">—</td>
+                  <td class="ctr pos-dash">—</td>
+                  <td class="ctr pos-dash">—</td>
+                </tr>
+                <tr>
+                  <td>FSR-VLN</td>
+                  <td class="ctr pos-dash">—</td>
+                  <td class="ctr pos-dash">—</td>
+                  <td class="ctr pos-dash">—</td>
+                </tr>
+                <tr>
+                  <td>DualMap</td>
+                  <td class="ctr pos-dash">—</td>
+                  <td class="ctr pos-dash">—</td>
+                  <td class="ctr pos-check">✓</td>
+                </tr>
+                <tr class="ours">
+                  <td>OpenBelief-Nav</td>
+                  <td class="ctr pos-check">✓</td>
+                  <td class="ctr pos-check">✓</td>
+                  <td class="ctr pos-check">✓</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Real world ============ -->
+  <section id="realworld">
+    <div class="wrap">
+      <div class="sec-kicker reveal">Real world</div>
+      <h2 class="sec-title reveal">Deployed on a Unitree G1 humanoid</h2>
+      <p class="sec-lede reveal">
+        Compute-heavy semantic reasoning runs offboard; an onboard Jetson keeps the motion loop local. The bridge
+        is Zenoh. The robot navigates to a candidate, looks, and lets physics vote.
+      </p>
+
+      <div class="hw-grid">
+        <div class="hw-card reveal">
+          <div class="role">Embodiment</div>
+          <h4>Unitree G1 + RealSense D435i</h4>
+          <p>Online RGB-D for perception, target grounding, and arrival verification.</p>
+        </div>
+        <div class="hw-card reveal">
+          <div class="role">Offboard reasoning</div>
+          <h4>RTX 5090 workstation</h4>
+          <p>Semantic mapping, open-vocabulary retrieval, and language-conditioned reasoning.</p>
+        </div>
+        <div class="hw-card reveal">
+          <div class="role">Onboard navigation</div>
+          <h4>Jetson AGX Orin</h4>
+          <p>ROS 2 Nav2 + CMU navigation stack, interfacing the low-level controller.</p>
+        </div>
+        <div class="hw-card reveal">
+          <div class="role">Bridge</div>
+          <h4>Zenoh</h4>
+          <p>Decoupled comms: heavy reasoning offboard, motion planning and control onboard.</p>
+        </div>
+      </div>
+
+      <div class="cond-grid">
+        <div class="cond-card reveal">
+          <span class="tag" style="background:var(--ok-tint);color:var(--ok)">CORRECT</span>
+          <h4>Valid mapped candidate</h4>
+          <p>The verifier must confirm without a false rejection — correction should cost nothing when the map is right.
+          </p>
+        </div>
+        <div class="cond-card reveal">
+          <span class="tag" style="background:var(--amber-tint);color:var(--amber)">CONFUSABLE</span>
+          <h4>Same-category distractor</h4>
+          <p>A look-alike outranks the true target. Arrival evidence rejects it; the query re-grounds to the supported
+            alternative.</p>
+        </div>
+        <div class="cond-card reveal">
+          <span class="tag" style="background:var(--reject-tint);color:var(--reject)">REMOVED</span>
+          <h4>Object gone after mapping</h4>
+          <p>Correct behavior is rejection followed by abstention — the honest answer when no supported candidate
+            remains.</p>
+        </div>
+        <div class="cond-card reveal">
+          <span class="tag" style="background:var(--lang-tint);color:var(--lang)">STALE DUPLICATE</span>
+          <h4>Outdated duplicate hypothesis</h4>
+          <p>The map holds an old copy of a moved object. Rejection is scoped to the query; the persistent graph is
+            untouched.</p>
+        </div>
+      </div>
+
+      <div class="figure-block reveal">
+        <img src="figures/realworld.png" alt="Real-world execution-grounded correction episodes" class="zoomable">
+        <div class="figure-cap"><b>Execution-grounded correction on the humanoid.</b> Top: a confusable candidate is
+          rejected on arrival and the original query re-grounds to a supported alternative, which is confirmed.
+          Bottom: a removed target's stale candidate is rejected and the system abstains — no supported candidate
+          remains. In both cases the persistent graph and the instruction are unchanged. Quantitative results across
+          the four conditions are being finalized for the camera-ready.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BibTeX ============ -->
+  <section id="bibtex">
+    <div class="wrap">
+      <div class="sec-kicker reveal">Citation</div>
+      <h2 class="sec-title reveal">BibTeX</h2>
+      <div class="bib-box reveal">
+        <button class="copy-btn" id="copy-bib">Copy</button>
+        <pre id="bib-text">@preprint{2026openbeliefnav,
+  title   = {OpenBelief-Nav: Evidence-Preserving Open-Vocabulary Scene Graphs
+             for Reliable Language-Guided Robot Navigation},
+  <!-- author  = {Pham, Quan-Dung and Dao, Anh and Nguyen, The-Anh and
+             Nguyen-Dinh, Minh and Dang, Phuong Nam and Le, Tuyen P.}, -->
+  author  = {anoynimous},
+  year    = {2026},
+  note    = {Under review}
+}</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- <footer>
+    <div class="wrap foot-inner">
+      <div>© 2026 VinMotion, Inc. — OpenBelief-Nav.</div>
+      <div>Scene-graph hierarchy visualization inspired by
+        <a href="https://github.com/MIT-SPARK/Hydra" target="_blank" rel="noopener">Hydra</a> (MIT-SPARK).
+      </div>
+    </div>
+  </footer> -->
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged figure">
+    <img id="lightbox-img" src="" alt="">
+  </div>
+
+  <script src="static/js/vendor/three.min.js"></script>
+  <script src="static/js/data.js"></script>
+  <script src="static/js/retrieval-engine.js"></script>
+  <script src="static/js/orbit-controls.js"></script>
+  <script src="static/js/scene-builder.js"></script>
+  <script src="static/js/evidence-panel.js"></script>
+  <script src="static/js/scene-graph-viewer.js"></script>
+  <script src="static/js/belief-lab.js"></script>
+  <script src="static/js/correction-stepper.js"></script>
+  <script src="static/js/page-behaviors.js"></script>
+  <script src="static/js/main.js"></script>
+</body>
+
+</html>
