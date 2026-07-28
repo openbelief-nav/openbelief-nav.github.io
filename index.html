@@ -773,7 +773,7 @@
         <div class="hw-card reveal">
           <div class="role">Embodiment</div>
           <h4>Unitree G1 + RealSense D435i</h4>
-          <p>Online RGB-D for perception, target grounding, and arrival verification.</p>
+          <p>Online RGB-D + LiDAR for perception, target grounding, and arrival verification.</p>
         </div>
         <div class="hw-card reveal">
           <div class="role">Offboard reasoning</div>
@@ -805,27 +805,60 @@
           <p>A look-alike outranks the true target. Arrival evidence rejects it; the query re-grounds to the supported
             alternative.</p>
         </div>
-        <div class="cond-card reveal">
-          <span class="tag" style="background:var(--reject-tint);color:var(--reject)">REMOVED</span>
-          <h4>Object gone after mapping</h4>
-          <p>Correct behavior is rejection followed by abstention — the honest answer when no supported candidate
-            remains.</p>
+      </div>
+
+      <div class="tbl-card reveal">
+        <div class="tbl-head">
+          <h3>Matched real-world target-confirmation results</h3>
+          <p>20 Unitree G1 runs, 10 matched cases (same graph, query, and start pose for both conditions).</p>
         </div>
-        <div class="cond-card reveal">
-          <span class="tag" style="background:var(--lang-tint);color:var(--lang)">STALE DUPLICATE</span>
-          <h4>Outdated duplicate hypothesis</h4>
-          <p>The map holds an old copy of a moved object. Rejection is scoped to the query; the persistent graph is
-            untouched.</p>
+        <div class="tbl-scroll">
+          <table class="res">
+            <thead>
+              <tr>
+                <th>Condition</th>
+                <th class="num">Runs</th>
+                <th class="num">Top-1-only SR</th>
+                <th class="num">Full-correction SR</th>
+                <th class="num">Full-correction mean visits</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Correct</td>
+                <td class="num">5</td>
+                <td class="num">5/5 (100%)</td>
+                <td class="num">5/5 (100%)</td>
+                <td class="num">1.00</td>
+              </tr>
+              <tr>
+                <td>Confusable</td>
+                <td class="num">5</td>
+                <td class="num">1/5 (20%)</td>
+                <td class="num">3/5 (60%)</td>
+                <td class="num">1.80</td>
+              </tr>
+              <tr class="ours">
+                <td>Overall</td>
+                <td class="num">10</td>
+                <td class="num">6/10 (60%)</td>
+                <td class="num best">8/10 (80%)</td>
+                <td class="num">1.40</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
       <div class="figure-block reveal">
-        <img src="figures/realworld.png" alt="Real-world execution-grounded correction episodes" class="zoomable">
-        <div class="figure-cap"><b>Execution-grounded correction on the humanoid.</b> Top: a confusable candidate is
-          rejected on arrival and the original query re-grounds to a supported alternative, which is confirmed.
-          Bottom: a removed target's stale candidate is rejected and the system abstains — no supported candidate
-          remains. In both cases the persistent graph and the instruction are unchanged. Quantitative results across
-          the four conditions are being finalized for the camera-ready.</div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap">
+          <img src="figures/g1.jpg" alt="Unitree G1 platform and hardware configuration" class="zoomable" style="flex:1;min-width:260px">
+          <img src="figures/realworld_deploy.jpg" alt="Execution-grounded candidate correction on the humanoid" class="zoomable" style="flex:1;min-width:260px">
+        </div>
+        <div class="figure-cap"><b>Real-world platform and deployment procedure.</b> Left: the Unitree G1 with
+          RealSense D435i and Livox MID-360. Right: execution-grounded candidate correction — arrival observations
+          confirm, re-observe, or reject the selected candidate, and rejection re-grounds the unchanged query over
+          the remaining mapped candidates without modifying the persistent graph.</div>
       </div>
     </div>
   </section>
