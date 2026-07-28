@@ -344,19 +344,6 @@
             <div class="eq">Sᵢ(q) = λᵢ⟨fᵢᵛ, f_q⟩ + (1−λᵢ)⟨fᵢᵗ, f_q⟩</div>
           </div>
         </div>
-        <div class="item-row r-geo reveal">
-          <div class="item-head">
-            <h3>Support test → abstention</h3>
-          </div>
-          <div class="item-body">
-            <p>Retrieval only returns a target when its score clears a support threshold; otherwise it
-              <b>abstains</b>. An absent or unsupported query is refused at retrieval time — before the robot
-              drives anywhere — instead of being “verified” after the fact.
-            </p>
-            <div class="eq">retrieve(q) = argmax Sᵢ(q) if max ≥ τ<sub>s</sub>, else <span class="hl">ABSTAIN</span>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div class="split-callout reveal">
