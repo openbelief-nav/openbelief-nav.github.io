@@ -673,6 +673,7 @@
                   <th>Variant</th>
                   <th class="num">ScanNet200 mIoU</th>
                   <th class="num">Nav SR@1m</th>
+                  <th class="num">YCB SR@1m</th>
                 </tr>
               </thead>
               <tbody>
@@ -680,26 +681,31 @@
                   <td>w<sub>e</sub> = 1 (no reliability)</td>
                   <td class="num">0.2010</td>
                   <td class="num">70.5</td>
+                  <td class="num">55.6</td>
                 </tr>
                 <tr>
                   <td>w<sub>e</sub> = c<sub>e</sub>n<sub>e</sub> (linear support)</td>
                   <td class="num best">0.2117</td>
                   <td class="num">74.4</td>
+                  <td class="num">50.0</td>
                 </tr>
                 <tr>
                   <td>no synonym consolidation</td>
                   <td class="num">0.2067</td>
                   <td class="num">75.6</td>
+                  <td class="num best">61.1</td>
                 </tr>
                 <tr>
                   <td>no low-evidence regularization</td>
                   <td class="num">0.2095</td>
                   <td class="num">70.5</td>
+                  <td class="num">50.0</td>
                 </tr>
                 <tr class="ours">
-                  <td>full system</td>
+                  <td>Default belief construction</td>
                   <td class="num">0.2107</td>
                   <td class="num best">76.9</td>
+                  <td class="num best">61.1</td>
                 </tr>
               </tbody>
             </table>
@@ -716,7 +722,6 @@
                 <tr>
                   <th>System</th>
                   <th class="ctr">Evidence @ query</th>
-                  <th class="ctr">Rejection</th>
                   <th class="ctr">Exec. correction</th>
                 </tr>
               </thead>
@@ -725,11 +730,9 @@
                   <td>ConceptGraphs</td>
                   <td class="ctr pos-dash">—</td>
                   <td class="ctr pos-dash">—</td>
-                  <td class="ctr pos-dash">—</td>
                 </tr>
                 <tr>
                   <td>HOV-SG</td>
-                  <td class="ctr pos-dash">—</td>
                   <td class="ctr pos-dash">—</td>
                   <td class="ctr pos-dash">—</td>
                 </tr>
@@ -737,17 +740,14 @@
                   <td>FSR-VLN</td>
                   <td class="ctr pos-dash">—</td>
                   <td class="ctr pos-dash">—</td>
-                  <td class="ctr pos-dash">—</td>
                 </tr>
                 <tr>
                   <td>DualMap</td>
-                  <td class="ctr pos-dash">—</td>
                   <td class="ctr pos-dash">—</td>
                   <td class="ctr pos-check">✓</td>
                 </tr>
                 <tr class="ours">
                   <td>OpenBelief-Nav</td>
-                  <td class="ctr pos-check">✓</td>
                   <td class="ctr pos-check">✓</td>
                   <td class="ctr pos-check">✓</td>
                 </tr>
