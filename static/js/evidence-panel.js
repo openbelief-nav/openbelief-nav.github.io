@@ -104,7 +104,7 @@
         '<div class="q-rank">';
 
       result.ranked.forEach((cand, i) => {
-        const win = !result.abstained && i === 0;
+        const win = i === 0;
         html += '<div class="q-cand' + (win ? " winner" : "") + '">' +
           '<span class="rk">#' + (i + 1) + "</span>" +
           '<span class="nm">' + esc(cand.object.belief[0][0]) + ' <span style="color:#7C90B8;font-size:11px">(' +
@@ -113,15 +113,9 @@
       });
       html += "</div>";
 
-      if (result.abstained) {
-        html += '<div class="q-verdict abstain"><span class="vt">⛔ ABSTAIN</span>' +
-          "max Sᵢ = " + result.ranked[0].score.toFixed(2) + " &lt; τₛ = " + result.threshold.toFixed(2) + ". " +
-          esc(result.note) + "</div>";
-      } else {
-        html += '<div class="q-verdict ok"><span class="vt">✓ TARGET SELECTED · goal ring placed</span>' +
-          "S = " + result.ranked[0].score.toFixed(2) + " ≥ τₛ = " + result.threshold.toFixed(2) + ". " +
-          esc(result.note) + "</div>";
-      }
+      html += '<div class="q-verdict ok"><span class="vt">✓ TARGET SELECTED · goal ring placed</span>' +
+        "S = " + result.ranked[0].score.toFixed(2) + " — highest-scoring candidate. " +
+        esc(result.note) + "</div>";
       this.bodyEl.innerHTML = html;
     }
   }

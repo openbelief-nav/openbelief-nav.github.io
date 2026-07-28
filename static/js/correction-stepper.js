@@ -22,7 +22,7 @@
     },
     {
       title: "Retrieve",
-      body: "The support test passes (0.41 ≥ τₛ), so retrieval selects the argmax: " +
+      body: "Retrieval selects the argmax over untried candidates: " +
         "<b>i₀ = n17</b>, the stale office-desk candidate. A reachable goal is sampled around its boundary.",
       outcome: ["neutral", "TARGET: n17 · office desk"]
     },
@@ -37,7 +37,7 @@
     {
       title: "Re-ground the verbatim query",
       body: "Exactly one thing changes: <b>𝓡_q = {n17}</b>. The graph is untouched, the query is not rewritten. " +
-        "Retrieval reruns over the remaining candidates and selects <b>n09</b> on the kitchen counter (0.38 ≥ τₛ).",
+        "Retrieval reruns over the remaining candidates and selects <b>n09</b>, the next-highest remaining candidate, on the kitchen counter.",
       outcome: ["neutral", "TARGET: n09 · kitchen counter"]
     },
     {
@@ -51,8 +51,8 @@
     {
       title: "Episode ends — map intact",
       body: "The binding was corrected, not the map: <b>n17 was never deleted</b>, and its rejection is scoped " +
-        "to this query only. Had no supported candidate remained (removed-target condition), the loop would " +
-        "have ended in an honest <b>ABSTAIN</b> instead of a confident wrong answer.",
+        "to this query only. Had no untried candidate remained, the loop would have returned <b>NONE</b> — " +
+        "not a claim the object is absent, only that every mapped candidate for this query has been tried.",
       outcome: ["confirm", "TERMINATED: CONFIRM"]
     }
   ];

@@ -62,8 +62,6 @@
       belief: [["cabinet", .52], ["drawer", .31], ["box", .17]], obs: 3, trust: "degraded" }
   ];
 
-  const TAU_S = 0.30;
-
   const QUERIES = {
     "sofa": {
       top: [["sofa", .86], ["office-chair", .42], ["bed", .33]],
@@ -79,10 +77,10 @@
     },
     "washing machine": {
       top: [["fridge", .24], ["counter", .21], ["wardrobe", .19]],
-      note: "cosine similarity still has an argmax — the support test refuses it."
+      note: "retrieval always returns its best-scoring candidate — arrival verification, not query-time scoring, is what catches a wrong one."
     }
   };
 
   global.OBN = global.OBN || {};
-  global.OBN.SceneGraphData = { ROOMS, OBJECTS, TAU_S, QUERIES };
+  global.OBN.SceneGraphData = { ROOMS, OBJECTS, QUERIES };
 })(window);

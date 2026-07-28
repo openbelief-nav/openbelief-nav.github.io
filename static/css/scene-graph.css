@@ -181,5 +181,3 @@
 }
 .q-chip:hover { border-color: var(--primary); color: var(--primary-deep); transform: translateY(-1px); }
 .q-chip.active { background: var(--primary); border-color: var(--primary); color: #fff; }
-.q-chip.absent { border-style: dashed; }
-.q-chip.absent.active { background: var(--reject); border-color: var(--reject); }
