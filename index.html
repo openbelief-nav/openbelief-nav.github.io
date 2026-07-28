@@ -9,7 +9,7 @@
   <meta property="og:title" content="OpenBelief-Nav — Evidence-Preserving Open-Vocabulary Scene Graphs">
   <meta property="og:description"
     content="Object nodes that store evidence, not decisions: multi-view phrases, reliability, and provenance are preserved so segmentation, retrieval, and correction become task-time readouts.">
-  <meta property="og:image" content="figures/pipeline.png">
+  <meta property="og:image" content="figures/openbelief_nav.jpg">
   <title>OpenBelief-Nav — Evidence-Preserving Open-Vocabulary Scene Graphs</title>
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
@@ -233,7 +233,7 @@
             <h3>Task-time readouts</h3>
           </div>
           <div class="item-body">
-            <p>Vocabulary projection, free-form retrieval, and support testing are separate operators over the same
+            <p>Vocabulary projection and free-form retrieval are separate operators over the same
               frozen evidence — and at deployment, arrival observations physically test the selected hypothesis.</p>
             <div class="eq">readout(𝓑ᵢ, task) — graph never rewritten</div>
           </div>
@@ -241,12 +241,11 @@
       </div>
 
       <div class="figure-block reveal">
-        <img src="figures/pipeline.png" alt="OpenBelief-Nav pipeline overview" class="zoomable">
-        <div class="figure-cap"><b>The full pipeline.</b> Posed RGB-D observations produce per-observation visual,
-          linguistic, geometric, reliability, and provenance evidence. Geometric–visual association forms object
-          nodes without any hard name-equality merge. The preserved evidence supports vocabulary projection,
-          free-form retrieval, unsupported-query rejection, and query-preserving correction after physical
-          verification.</div>
+        <img src="figures/openbelief_nav.jpg" alt="Overview of OpenBelief-Nav" class="zoomable">
+        <div class="figure-cap"><b>Overview of OpenBelief-Nav.</b> Mapping retains observation-level phrases,
+          reliability cues, frame–mask provenance, and separate aggregate geometric and visual representations.
+          Task-time readouts perform fixed-vocabulary projection or free-form retrieval, while arrival
+          verification enables query-specific candidate correction without modifying the persistent graph.</div>
       </div>
     </div>
   </section>
