@@ -146,10 +146,8 @@
   margin-top: 13px; border-radius: 10px; padding: 11px 13px; font-size: 12.5px; line-height: 1.5;
 }
 .q-verdict.ok { background: rgba(14, 159, 110, .12); border: 1px solid rgba(14, 159, 110, .38); color: #B9EDD6; }
-.q-verdict.abstain { background: rgba(214, 69, 61, .12); border: 1px solid rgba(214, 69, 61, .4); color: #F5C6C2; }
 .q-verdict .vt { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; display: block; margin-bottom: 3px; }
 .q-verdict.ok .vt { color: #4ADE9C; }
-.q-verdict.abstain .vt { color: #F87168; }
 
 /* ---- Control bar under viewport ---- */
 .sg-controls {

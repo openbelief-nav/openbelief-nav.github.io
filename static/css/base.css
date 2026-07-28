@@ -263,7 +263,6 @@ section + section { border-top: 1px solid var(--line-soft); }
 
 .item-row.r-vis { border-left-color: var(--vis); }
 .item-row.r-lang { border-left-color: var(--lang); }
-.item-row.r-geo { border-left-color: var(--geo); }
 
 .lam-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
 .lam-table td {
