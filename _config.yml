@@ -1,0 +1,19 @@
+title: OpenBelief-Nav
+description: >-
+  Evidence-Preserving Open-Vocabulary Scene Graphs for Reliable
+  Language-Guided Robot Navigation
+url: "https://openbelief-nav.github.io"
+baseurl: ""
+
+# Fully custom static site — don't let github-pages gem's default
+# jekyll-theme-primer inject unused assets/css/style.css.
+theme: null
+
+# Internal planning/spec docs — not site content, and contain literal
+# `{{ }}` in code samples that break Liquid parsing if built.
+exclude:
+  - docs/
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - vendor/
