@@ -15,22 +15,9 @@ The paper source at `/home/namdp15/Workspace/VMO/vm_scene_graph/docs/OpenBelief_
 
 ## Changes
 
-### 1. Positioning table — add FSR-VLN row
+### ~~1. Positioning table — add FSR-VLN row~~ (correction: already present)
 
-File: `index.html`, `#results` section, "Positioning" `tbl-card` (around line 691, between the HOV-SG and DualMap rows).
-
-The paper's `related.tex` Table `positioning` now includes FSR-VLN. Insert, matching the paper (all dashes, same as ConceptGraphs/HOV-SG):
-
-```html
-<tr>
-  <td>FSR-VLN</td>
-  <td class="ctr pos-dash">—</td>
-  <td class="ctr pos-dash">—</td>
-  <td class="ctr pos-dash">—</td>
-</tr>
-```
-
-Placed after the HOV-SG row and before the DualMap row, matching the paper's system ordering (ConceptGraphs, HOV-SG, FSR-VLN, DualMap, Ours).
+**Correction (post spec-review, before planning):** re-verified `index.html:691-696` directly and the FSR-VLN row is already there, matching the paper exactly (all dashes, correctly ordered between HOV-SG and DualMap). The original diff-finding was a misread during initial exploration. No action needed — dropped from the plan.
 
 ### 2. New "Semantic readout ablation" table
 
