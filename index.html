@@ -350,14 +350,14 @@
         <div class="split-half">
           <div class="task seg">Semantic segmentation · ScanNet200</div>
           <div class="big-num">0.2742</div>
-          <div class="win-readout">best readout: <b>full posterior</b> projection</div>
+          <div class="win-readout">best readout: <b>full-belief</b> projection</div>
           <div class="delta">consensus-only reaches 0.2107 · visual-only 0.1286 · <em>+71% over DualMap</em></div>
         </div>
         <div class="split-half">
           <div class="task nav">Language-guided navigation · HM3D + YCB</div>
           <div class="big-num">76.9%</div>
           <div class="win-readout">best readout: <b>consensus</b> over the same graph</div>
-          <div class="delta">full posterior reaches 74.4% · <em>+6.4 pts over DualMap</em></div>
+          <div class="delta">belief-weighted reaches 74.4% · <em>+6.4 pts over DualMap</em></div>
         </div>
         <div class="split-foot">
           <b>No single committed readout is optimal for both tasks — the evidence-preserving graph is,</b>
@@ -492,7 +492,7 @@
                 <td class="num">0.4580</td>
               </tr>
               <tr class="ours">
-                <td>OpenBelief-Nav <span class="method-tag">posterior</span></td>
+                <td>OpenBelief-Nav <span class="method-tag">full-belief</span></td>
                 <td class="num"><span class="cellbar"><span class="bar"><i data-w="96"></i></span><span
                       class="best">0.2742</span></span></td>
                 <td class="num best">0.5276</td>
@@ -526,7 +526,7 @@
                 <td class="num">0.4774</td>
               </tr>
               <tr class="ours">
-                <td>OpenBelief-Nav <span class="method-tag">posterior</span></td>
+                <td>OpenBelief-Nav <span class="method-tag">full-belief</span></td>
                 <td class="num"><span class="cellbar"><span class="bar"><i data-w="97"></i></span><span
                       class="best">0.2912</span></span></td>
                 <td class="num">0.5204</td>
@@ -592,11 +592,68 @@
                       class="best">76.9</span></span></td>
               </tr>
               <tr class="ours">
-                <td>OpenBelief-Nav <span class="method-tag">posterior</span></td>
+                <td>OpenBelief-Nav <span class="method-tag">belief-weighted</span></td>
                 <td class="num">76.9</td>
                 <td class="num">73.1</td>
                 <td class="num best">73.1</td>
                 <td class="num"><span class="cellbar"><span class="bar"><i data-w="94"></i></span>74.4</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tbl-card reveal">
+        <div class="tbl-head">
+          <h3>Semantic readout ablation</h3>
+          <p>Same object geometry and observations, scored by four different readouts. Higher is better; bold = best per dataset.</p>
+        </div>
+        <div class="tbl-scroll">
+          <table class="res">
+            <thead>
+              <tr>
+                <th>Semantic readout</th>
+                <th class="num">mIoU ↑</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="dataset-band">
+                <td colspan="2">ScanNet200</td>
+              </tr>
+              <tr>
+                <td>Visual-only</td>
+                <td class="num">0.1286</td>
+              </tr>
+              <tr>
+                <td>Consensus-only</td>
+                <td class="num">0.2107</td>
+              </tr>
+              <tr>
+                <td>Early-commit</td>
+                <td class="num">0.2393</td>
+              </tr>
+              <tr class="ours">
+                <td>Full-belief projection</td>
+                <td class="num best">0.2742</td>
+              </tr>
+              <tr class="dataset-band">
+                <td colspan="2">Replica</td>
+              </tr>
+              <tr>
+                <td>Visual-only</td>
+                <td class="num">0.2287</td>
+              </tr>
+              <tr>
+                <td>Consensus-only</td>
+                <td class="num">0.2831</td>
+              </tr>
+              <tr>
+                <td>Early-commit</td>
+                <td class="num">0.2701</td>
+              </tr>
+              <tr class="ours">
+                <td>Full-belief projection</td>
+                <td class="num best">0.2912</td>
               </tr>
             </tbody>
           </table>
