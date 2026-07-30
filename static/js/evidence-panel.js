@@ -61,8 +61,8 @@
         '<div class="ev-obj-name">' + esc(obj.belief[0][0]) + "</div>" +
         '<div class="ev-obj-room" style="color:' + roomMeta.css + '">● ' + esc(roomMeta.name) + "</div>" +
         '<span class="trust-badge ' + obj.trust + '">' + (obj.trust === "trusted" ? "✓ TRUSTED" : "◐ DEGRADED") +
-        " · ρᵢ</span>" +
-        '<div class="ev-sec-label">Semantic belief 𝐩ᵢ (Dirichlet-smoothed)</div>';
+        " · \\(\\rho_i\\)</span>" +
+        '<div class="ev-sec-label">Semantic belief \\(\\mathbf{p}_i\\) (Dirichlet-smoothed)</div>';
 
       obj.belief.forEach(([c, p]) => {
         html += '<div class="belief-row"><div class="top"><span class="c">' + esc(c) +
@@ -70,7 +70,7 @@
           '<div class="belief-track"><div class="belief-fill" data-w="' + (p * 100) + '"></div></div></div>';
       });
 
-      html += '<div class="ev-sec-label">Provenance πᵢ (frame · mask)</div><div class="prov-chips">';
+      html += '<div class="ev-sec-label">Provenance \\(\\pi_i\\) (frame · mask)</div><div class="prov-chips">';
       const nProv = Math.min(obj.obs, 5);
       for (let k = 0; k < nProv; k++) {
         const t = 12 + (obj.id.length * 7 + k * 41) % 880;
@@ -80,12 +80,18 @@
       if (obj.obs > nProv) html += '<span class="prov-chip">+' + (obj.obs - nProv) + " more</span>";
       html += "</div>" +
         '<div class="ev-note">' + obj.obs + " observations preserved — none fused away. Retrieval fusion weight " +
-        "<code>λᵢ = " + lam + "</code>" +
+        "<code>\\(\\lambda_i\\) = " + lam + "</code>" +
         (obj.trust === "trusted" ? " — a confident node trusts its text head." :
           " — an ambiguous belief leans on the visual channel instead.") +
         "</div>";
 
       this.bodyEl.innerHTML = html;
+      if (window.renderMathInElement) {
+        window.renderMathInElement(this.bodyEl, {
+          delimiters: [{left: '\\(', right: '\\)', display: false}],
+          throwOnError: false
+        });
+      }
       requestAnimationFrame(() => {
         this.bodyEl.querySelectorAll(".belief-fill").forEach(el => { el.style.width = el.dataset.w + "%"; });
       });

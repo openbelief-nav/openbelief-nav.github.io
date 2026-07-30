@@ -218,13 +218,15 @@ section + section { border-top: 1px solid var(--line-soft); }
 
 /* equations — always fully displayed, wrapping instead of scrolling */
 .eq {
-  font-family: var(--mono); font-size: 13.5px; color: var(--ink-soft);
+  font-family: var(--mono); font-size: 14.5px; color: var(--ink-soft);
   background: #F2F4FA; border: 1px solid var(--line-soft); border-radius: 10px;
   padding: 12px 15px; margin-top: 14px; line-height: 1.85;
   white-space: normal; overflow-wrap: break-word;
 }
 .eq sub, .eq sup { font-size: 10px; }
 .eq .hl { color: var(--primary-deep); font-weight: 600; }
+.eq .katex { font-size: 1.1em; color: var(--ink); }
+.katex { font-size: 1.02em; }
 
 /* ============ Figure blocks ============ */
 .figure-block {

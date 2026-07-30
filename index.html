@@ -23,6 +23,12 @@
   <link rel="stylesheet" href="static/css/base.css">
   <link rel="stylesheet" href="static/css/scene-graph.css">
   <link rel="stylesheet" href="static/css/widgets.css">
+
+  <!-- KaTeX for LaTeX Math Rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '\\(', right: '\\)', display: false}, {left: '$', right: '$', display: false}], throwOnError: false});"></script>
 </head>
 
 <body>
@@ -183,7 +189,7 @@
       <h2 class="sec-title reveal">Four stages, each pushing commitment later</h2>
       <p class="sec-lede reveal">
         An object node stores the evidence-preserving state
-        <span style="font-family:var(--mono);font-size:15px">𝓑ᵢ = (Pᵢ, fᵢᵛ, 𝓞ᵢ, 𝐕ᵢ, 𝐩ᵢ, fᵢᵗ, ρᵢ)</span> —
+        \(\mathcal{B}_i = (P_i, \mathbf{f}_i^v, \mathcal{O}_i, \mathbf{V}_i, \mathbf{p}_i, \mathbf{f}_i^t, \rho_i)\) —
         point cloud, aggregate visual feature, the raw language observations, concept-level evidence with its
         smoothed belief, a consensus text feature, and a trust status. The visual and language channels are
         <b>never destructively fused during mapping</b>; every cross-modal decision is deferred to a readout.
@@ -197,9 +203,8 @@
           </div>
           <div class="item-body">
             <p>A frozen VLM proposes phrases; a promptable segmenter grounds each phrase as masks. Every mask is kept
-              as an observation with its phrase, confidence, 3D support, and exact frame + mask identity.</p>
-            <div class="eq">o<sub>e</sub> = (t<sub>e</sub>, j<sub>e</sub>, ℓ<sub>e</sub>, c<sub>e</sub>, n<sub>e</sub>)
-            </div>
+              as an observation with its phrase, confidence, 3D point cloud, visual feature, and exact frame + mask provenance.</p>
+            <div class="eq">\(o_e = (t_e, j_e, \ell_e, c_e, n_e, P_e, f_e^v)\)</div>
           </div>
         </div>
         <div class="item-row reveal">
@@ -211,8 +216,7 @@
             <p>Observations merge on <b>3D overlap</b>, with visual similarity only as a rejection cue — never on
               predicted names. Precision is favored: a false merge is irreversible, a missed one is recoverable at
               query time.</p>
-            <div class="eq">e ∼ e′ ⇔ Ω<sub>r</sub> ≥ τ<sub>g</sub> ∧ ⟨f<sub>e</sub>ᵛ, f<sub>e′</sub>ᵛ⟩ ≥ τ<sub>v</sub>
-            </div>
+            <div class="eq">\(o_e \sim o_{e'} \iff \Omega_r(P_e, P_{e'}) \ge \tau_g \land \langle f_e^v, f_{e'}^v \rangle \ge \tau_v\)</div>
           </div>
         </div>
         <div class="item-row reveal">
@@ -222,9 +226,8 @@
           </div>
           <div class="item-body">
             <p>Observations are weighted by what we actually know — segmentation confidence and 3D support — grouped
-              into synonym-aware concepts, and Dirichlet-smoothed so sparse evidence can't fake certainty.</p>
-            <div class="eq">w<sub>e</sub> = c<sub>e</sub>√n̄<sub>e</sub> &nbsp;·&nbsp;
-              p<sub>ik</sub> = <span class="hl">(V<sub>ik</sub>+α)</span> / (ΣV<sub>ij</sub>+αK<sub>i</sub>)</div>
+              into synonym-aware concepts \(V_{ik}\), and Dirichlet-smoothed so sparse evidence can't fake certainty.</p>
+            <div class="eq">\(w_e = c_e \cdot \sqrt{n_e} \qquad V_{ik} = \sum_{o_e \in \mathcal{O}_i:\,\ell_e \in \mathcal{C}_{ik}} w_e \qquad p_{ik} = \frac{V_{ik} + \alpha}{\sum_{j=1}^{K_i} V_{ij} + \alpha K_i}\)</div>
           </div>
         </div>
         <div class="item-row reveal">
@@ -235,7 +238,7 @@
           <div class="item-body">
             <p>Vocabulary projection and free-form retrieval are separate operators over the same
               frozen evidence — and at deployment, arrival observations physically test the selected hypothesis.</p>
-            <div class="eq">readout(𝓑ᵢ, task) — graph never rewritten</div>
+            <div class="eq">\(\text{readout}(\mathcal{B}_i, \text{task})\) — graph never rewritten</div>
           </div>
         </div>
       </div>
@@ -264,9 +267,8 @@
 
       <div class="lab-frame reveal">
         <div class="lab-left">
-          <div class="lab-title">Observation stream 𝓞ᵢ</div>
-          <div class="lab-sub">weight w<sub>e</sub> = c<sub>e</sub> · √n<sub>e</sub> — confidence × spatial support
-          </div>
+          <div class="lab-title">Observation stream \(\mathcal{O}_i\)</div>
+          <div class="lab-sub">weight \(w_e = c_e \cdot \sqrt{n_e}\) — confidence \(\times\) spatial support</div>
           <div class="obs-list" id="obs-list"><!-- filled by JS --></div>
           <div class="lab-ctl-row">
             <button class="lab-btn" id="lab-play">▶ Play stream</button>
@@ -274,7 +276,7 @@
           </div>
         </div>
         <div class="lab-right">
-          <div class="lab-title">Concept belief 𝐩ᵢ</div>
+          <div class="lab-title">Concept belief \(\mathbf{p}_i\)</div>
           <div class="lab-sub">accumulated at the concept level, Dirichlet-smoothed</div>
           <div class="concept-rows" id="concept-rows"><!-- filled by JS --></div>
           <div class="lab-ctl-row">
@@ -286,7 +288,7 @@
               synonym consolidation
             </div>
             <div class="alpha-ctl">
-              α <input type="range" id="lab-alpha" min="1" max="60" value="8"> <span id="lab-alpha-v">0.8</span>
+              \(\alpha\) <input type="range" id="lab-alpha" min="1" max="60" value="8"> <span id="lab-alpha-v">0.8</span>
             </div>
           </div>
           <div class="lab-verdict" id="lab-verdict">Press play to stream observations into the node.</div>
@@ -311,10 +313,10 @@
             <h3>Vocabulary projection</h3>
           </div>
           <div class="item-body">
-            <p>The benchmark vocabulary arrives only at evaluation time. The stored belief is refined by the visual
-              feature <b>within its existing support</b>, then projected onto the target classes — secondary
+            <p>The benchmark vocabulary arrives only at evaluation time. The stored belief \(p_{ik}\) is visually refined
+              into \(\widetilde{p}_{ik}\) within its existing support, then projected onto target class distribution \(\widehat{p}_i(c)\) — secondary
               hypotheses an early top-1 would have discarded remain recoverable.</p>
-            <div class="eq">ŷᵢ(c) = (1−λ)Σ p̃<sub>ik</sub>W<sub>ikc</sub> + λ·softmax⟨fᵢᵛ, t<sub>c</sub>⟩</div>
+            <div class="eq">\(\widetilde{p}_{ik} = \frac{p_{ik}^{\gamma} \exp(\langle g_{ik}, f_i^v \rangle / T_{\mathrm{vis}})}{\sum_{j=1}^{K_i} p_{ij}^{\gamma} \exp(\langle g_{ij}, f_i^v \rangle / T_{\mathrm{vis}})} \qquad \widehat{p}_i(c) = (1 - \lambda_{\mathrm{vis}}) \sum_{k=1}^{K_i} \widetilde{p}_{ik} W_{ikc} + \lambda_{\mathrm{vis}} v_i(c)\)</div>
           </div>
         </div>
         <div class="item-row r-lang reveal">
@@ -322,26 +324,26 @@
             <h3>Free-form retrieval</h3>
           </div>
           <div class="item-body">
-            <p>Query similarity fuses the visual and text heads — but the fusion weight is <b>per-node</b>, conditioned
-              on the trust status the belief construction produced:</p>
+            <p>Query similarity fuses the visual and language heads \(H_i^{(r)}(q)\) — but the fusion weight \(\lambda_i\) is <b>per-node</b>, conditioned
+              on the trust status \(\rho_i\) produced during belief construction:</p>
             <table class="lam-table">
               <tr>
-                <td>no language evidence (K=0)</td>
+                <td>no language evidence (\(K_i=0\))</td>
                 <td>trust vision only</td>
-                <td>λ = 1.0</td>
+                <td>\(\lambda_i = 1.0\)</td>
               </tr>
               <tr>
-                <td>degraded belief</td>
+                <td>degraded belief (\(\rho_i = \text{degraded}\))</td>
                 <td>lean visual</td>
-                <td>λ = 0.7</td>
+                <td>\(\lambda_i = 0.7\)</td>
               </tr>
               <tr>
-                <td>trusted belief</td>
+                <td>trusted belief (\(\rho_i = \text{trusted}\))</td>
                 <td>trust the text head</td>
-                <td>λ = 0.2</td>
+                <td>\(\lambda_i = 0.2\)</td>
               </tr>
             </table>
-            <div class="eq">Sᵢ(q) = λᵢ⟨fᵢᵛ, f_q⟩ + (1−λᵢ)⟨fᵢᵗ, f_q⟩</div>
+            <div class="eq">\(S_i^{(r)}(q) = \lambda_i \langle f_i^v, f_q \rangle + (1 - \lambda_i) H_i^{(r)}(q) \qquad \text{where } H_i^{(\mathrm{con})}(q) = \langle f_i^t, f_q \rangle\)</div>
           </div>
         </div>
       </div>
@@ -377,7 +379,7 @@
         verifier — <b>re-observe</b> if the candidate isn't sufficiently visible (absence of view is not evidence
         of absence), <b>reject</b> on semantic mismatch or on a semantic match that fails to coincide geometrically
         with the stored node, <b>confirm</b> otherwise. Rejection changes exactly one thing: a per-query exclusion
-        set. The graph is never modified and the query is never rewritten.
+        set \(\mathcal{R}_q^{(k+1)} = \mathcal{R}_q^{(k)} \cup \{i^{(k)}\}\). The graph is never modified and the query is never rewritten.
       </p>
 
       <div class="ep-frame reveal">
@@ -678,13 +680,13 @@
               </thead>
               <tbody>
                 <tr>
-                  <td>w<sub>e</sub> = 1 (no reliability)</td>
+                  <td>\(w_e = 1\) (no reliability)</td>
                   <td class="num">0.2010</td>
                   <td class="num">70.5</td>
                   <td class="num">55.6</td>
                 </tr>
                 <tr>
-                  <td>w<sub>e</sub> = c<sub>e</sub>n<sub>e</sub> (linear support)</td>
+                  <td>\(w_e = c_e \cdot n_e\) (linear support)</td>
                   <td class="num best">0.2117</td>
                   <td class="num">74.4</td>
                   <td class="num">50.0</td>
