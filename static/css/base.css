@@ -139,7 +139,8 @@ section + section { border-top: 1px solid var(--line-soft); }
 .authors { margin-top: 22px; font-size: 16px; color: var(--ink-soft); max-width: 900px; }
 .authors .au { font-weight: 600; color: var(--ink); }
 .authors sup { color: var(--muted); font-size: 11.5px; }
-.affil { margin-top: 6px; font-size: 14.5px; color: var(--muted); }
+.affil { margin-top: 6px; font-size: 14.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 22px; }
+.contribution { margin-top: 6px; font-size: 13px; color: var(--muted); }
 
 .hero-actions { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 11px; }
 .btn {

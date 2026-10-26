@@ -6,11 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description"
     content="OpenBelief-Nav: evidence-preserving open-vocabulary scene graphs for reliable language-guided robot navigation. One frozen graph, many task-time readouts, execution-grounded correction.">
-  <meta property="og:title" content="OpenBelief-Nav — Evidence-Preserving Open-Vocabulary Scene Graphs">
+  <meta property="og:title" content="OpenBelief-Nav: Evidence-Preserving Object Memory for Open-Vocabulary Language-Guided Navigation">
   <meta property="og:description"
     content="Object nodes that store evidence, not decisions: multi-view phrases, reliability, and provenance are preserved so segmentation, retrieval, and correction become task-time readouts.">
   <meta property="og:image" content="figures/openbelief_nav.jpg">
-  <title>OpenBelief-Nav — Evidence-Preserving Open-Vocabulary Scene Graphs</title>
+  <title>OpenBelief-Nav: Evidence-Preserving Object Memory for Open-Vocabulary Language-Guided Navigation</title>
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧭</text></svg>">
 
@@ -53,21 +53,30 @@
   <!-- ============ Hero ============ -->
   <header class="hero" id="top">
     <div class="wrap-wide">
-      <div class="hero-eyebrow"><span class="dot"></span>Preprint · Under Review · 2026</div>
-      <h1>Scene graphs that store <span class="grad">evidence</span>, not decisions.</h1>
+      <div class="hero-eyebrow"><span class="dot"></span>OpenBelief-Nav · 2026</div>
+      <h1>OpenBelief-Nav: <span class="grad">Evidence-Preserving Object Memory</span> for Open-Vocabulary Language-Guided Navigation</h1>
       <p class="hero-sub">
-        <b>OpenBelief-Nav</b> is a training-free open-vocabulary scene graph for language-guided robot navigation.
+        <b>OpenBelief-Nav</b> is an evidence-preserving object memory for open-vocabulary language-guided navigation.
         Each object node preserves its multi-view phrases, reliability weights, and exact provenance instead of a
         single committed label — so segmentation, retrieval, and execution-time
         correction all become <b>task-time readouts over one frozen graph</b>.
       </p>
 
-      <!-- <div class="authors">
-        <span class="au">Quan-Dung Pham</span><sup>*</sup>, <span class="au">Anh Dao</span><sup>*</sup>,
-        <span class="au">The-Anh Nguyen</span><sup>*</sup>, <span class="au">Minh Nguyen-Dinh</span><sup>*</sup>,
-        <span class="au">Phuong Nam Dang</span><sup>*</sup>, <span class="au">Tuyen P. Le</span>
+      <div class="authors">
+        <span class="au">Dinh Tuan Nguyen<sup>1,*</sup></span>,
+        <span class="au">Anh Dao<sup>1,*</sup></span>,
+        <span class="au">Phuong Nam Dang<sup>1</sup></span>,
+        <span class="au">Quan-Dung Pham<sup>1</sup></span>,
+        <span class="au">Tuyen P. Le<sup>1</sup></span>,
+        <span class="au">Truong Nguyen<sup>1,2</sup></span>,
+        <span class="au">Quan Nguyen<sup>3</sup></span>
       </div>
-      <div class="affil">VinMotion, Inc., Vietnam &nbsp;·&nbsp; <sup>*</sup>Equal contribution</div> -->
+      <div class="affil">
+        <span><sup>1</sup>VinMotion, Inc., Vietnam</span>
+        <span><sup>2</sup>VinUniversity, Vietnam</span>
+        <span><sup>3</sup>University of Southern California, USA</span>
+      </div>
+      <p class="contribution"><sup>*</sup>Equal contribution</p>
 
       <div class="hero-actions">
         <a class="btn btn-dark" href="#" aria-disabled="true">📄 Paper <span class="soon">soon</span></a>
@@ -297,14 +306,20 @@
     </div>
   </section>
 
+  <section id="implementation">
+    <div class="wrap">
+      <h2 class="sec-title">Implementation</h2>
+      <p class="sec-lede">Qwen3-VL-4B-Instruct proposes object phrases, SAM 3 grounds them into masks, and MobileCLIP2-S4 encodes visual and textual features. Mapping runs offline on an NVIDIA RTX 5090 (32 GB); task-time readouts run online. Language evidence is retained per observation, while geometry and visual features are aggregated independently.</p>
+    </div>
+  </section>
+
   <!-- ============ Readouts ============ -->
   <section id="readouts">
     <div class="wrap">
       <div class="sec-kicker reveal">One graph, many answers</div>
       <h2 class="sec-title reveal">“What is this object?” depends on who's asking</h2>
       <p class="sec-lede reveal">
-        Because a node stores evidence rather than a decision, the same frozen graph answers differently —
-        and correctly — for each task.
+        The same frozen object memory supports fixed-vocabulary projection and free-form retrieval through task-specific readouts.
       </p>
 
       <div class="item-list">
@@ -358,12 +373,12 @@
         <div class="split-half">
           <div class="task nav">Language-guided navigation · HM3D + YCB</div>
           <div class="big-num">76.9%</div>
-          <div class="win-readout">best readout: <b>consensus</b> over the same graph</div>
+          <div class="win-readout">best readouts: <b>consensus and early-commit</b> (60/78 each)</div>
           <div class="delta">belief-weighted reaches 74.4% · <em>+6.4 pts over DualMap</em></div>
         </div>
         <div class="split-foot">
-          <b>No single committed readout is optimal for both tasks — the evidence-preserving graph is,</b>
-          because the readout is chosen per task over the same preserved evidence.
+          <b>No internal readout dominates every task or navigation scene.</b>
+          Preserved evidence supports choosing the readout for the downstream task.
         </div>
       </div>
     </div>
@@ -444,10 +459,9 @@
   <section id="results">
     <div class="wrap">
       <div class="sec-kicker reveal">Results</div>
-      <h2 class="sec-title reveal">Same graph, strongest result on both benchmarks</h2>
+      <h2 class="sec-title reveal">Task-specific readouts over the same object memory</h2>
       <p class="sec-lede reveal">
-        Graph construction is performed <b>once per environment</b>; every number below is a readout over that
-        frozen graph, with no re-perception between tasks.
+        OpenBelief-Nav variants share <b>identical observations and object geometry</b> and differ only in their task-time semantic readout. Reference systems are evaluated under the same benchmark protocols.
       </p>
 
       <div class="tbl-card reveal">
@@ -488,6 +502,12 @@
                 <td class="num">0.3794</td>
               </tr>
               <tr class="ours">
+                <td>OpenBelief-Nav <span class="method-tag">early-commit</span></td>
+                <td class="num">0.2393</td>
+                <td class="num">0.4847</td>
+                <td class="num">0.4653</td>
+              </tr>
+              <tr class="ours">
                 <td>OpenBelief-Nav <span class="method-tag">consensus</span></td>
                 <td class="num"><span class="cellbar"><span class="bar"><i data-w="74"></i></span>0.2107</span></td>
                 <td class="num">0.4887</td>
@@ -520,6 +540,12 @@
                 <td class="num"><span class="cellbar"><span class="bar"><i data-w="84"></i></span>0.2538</span></td>
                 <td class="num best">0.5207</td>
                 <td class="num">0.4024</td>
+              </tr>
+              <tr class="ours">
+                <td>OpenBelief-Nav <span class="method-tag">early-commit</span></td>
+                <td class="num">0.2701</td>
+                <td class="num">0.4653</td>
+                <td class="num">0.4694</td>
               </tr>
               <tr class="ours">
                 <td>OpenBelief-Nav <span class="method-tag">consensus</span></td>
@@ -662,11 +688,16 @@
         </div>
       </div>
 
+      <figure class="figure-block reveal">
+        <img src="figures/ablation_image.png" alt="ScanNet200 semantic predictions: visual-only, consensus, and full-belief projection" class="zoomable" loading="lazy">
+        <figcaption class="figure-cap">Task-time semantic readout on a representative ScanNet200 scene. Scene-level mIoU increases from 0.0914 (visual-only) to 0.3832 (consensus) and 0.5505 (full-belief projection). These are single-scene results, not dataset averages.</figcaption>
+      </figure>
+
       <div class="card-grid cols-2">
         <div class="tbl-card reveal" style="margin-top:0">
           <div class="tbl-head">
             <h3>Component ablation</h3>
-            <p>Each row disables one mechanism of the belief construction.</p>
+            <p>Consensus readout with fixed observations and geometry; 78 navigation trials, including 18 inserted YCB-object trials.</p>
           </div>
           <div class="tbl-scroll">
             <table class="res" style="min-width:420px">
@@ -774,8 +805,8 @@
       <div class="hw-grid">
         <div class="hw-card reveal">
           <div class="role">Embodiment</div>
-          <h4>Unitree G1 + RealSense D435i</h4>
-          <p>Online RGB-D + LiDAR for perception, target grounding, and arrival verification.</p>
+          <h4>Unitree G1 + RGB-D + LiDAR</h4>
+          <p>Intel RealSense D435i RGB-D camera and Livox MID-360 LiDAR for perception and arrival verification.</p>
         </div>
         <div class="hw-card reveal">
           <div class="role">Offboard reasoning</div>
@@ -865,6 +896,13 @@
     </div>
   </section>
 
+  <section id="scope">
+    <div class="wrap">
+      <h2 class="sec-title">Scope and limitations</h2>
+      <p class="sec-lede">The real-world pilot contains 20 robot runs across 10 matched cases and permits at most two verified candidate attempts. It evaluates recovery when the intended target remains mapped. It does not evaluate absent-query rejection, removed-target detection, general map repair, or broad real-world generalization. Belief scores represent relative support, not calibrated uncertainty. Arrival verification assumes the navigation stack reaches the observation viewpoint.</p>
+    </div>
+  </section>
+
   <!-- ============ BibTeX ============ -->
   <section id="bibtex">
     <div class="wrap">
@@ -872,14 +910,13 @@
       <h2 class="sec-title reveal">BibTeX</h2>
       <div class="bib-box reveal">
         <button class="copy-btn" id="copy-bib">Copy</button>
-        <pre id="bib-text">@preprint{2026openbeliefnav,
-  title   = {OpenBelief-Nav: Evidence-Preserving Open-Vocabulary Scene Graphs
-             for Reliable Language-Guided Robot Navigation},
-  <!-- author  = {Pham, Quan-Dung and Dao, Anh and Nguyen, The-Anh and
-             Nguyen-Dinh, Minh and Dang, Phuong Nam and Le, Tuyen P.}, -->
-  author  = {anoynimous},
+        <pre id="bib-text">@misc{2026openbeliefnav,
+  title   = {OpenBelief-Nav: Evidence-Preserving Object Memory for
+             Open-Vocabulary Language-Guided Navigation},
+  author  = {Nguyen, Dinh Tuan and Dao, Anh and Dang, Phuong Nam and
+             Pham, Quan-Dung and Le, Tuyen P. and Nguyen, Truong and Nguyen, Quan},
   year    = {2026},
-  note    = {Under review}
+  url     = {https://openbelief-nav.github.io/}
 }</pre>
       </div>
     </div>
